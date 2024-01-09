@@ -1,6 +1,18 @@
 #!/bin/env python
 
+from pdfminer.high_level import extract_text
 from webdav3.client import Client
+
+# PDF parsen
+
+pdfcontent = extract_text(filename).splitlines()
+fach_name = pdfcontent[0][:-1]
+jahr = pdfcontent[2][:4]
+share_id = pdfcontent[2].split("/")[-1][:-1]
+share_password = pdfcontent[4][:-1]
+
+
+# Download aus ownCloud
 
 link_to_cloud = "https://membox.nrw.de/remote.php/dav/public-files/"
 

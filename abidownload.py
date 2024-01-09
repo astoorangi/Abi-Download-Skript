@@ -1,12 +1,19 @@
 #!/bin/env python
 
+import argparse
 from pdfminer.high_level import extract_text
 from webdav3.client import Client
 import os
 import re
+import json
 
-input_directory = "testdaten/ausgewählte"
-output_directory = "testdaten/klausuren"
+parser = argparse.ArgumentParser()
+parser.add_argument("input_directory")
+parser.add_argument("output_directory")
+args = parser.parse_args()
+
+input_directory = args.input_directory
+output_directory = args.output_directory
 
 # find all pdfs
 
@@ -57,5 +64,5 @@ for pdf in credentials_pdfs:
                 documentation[subject][year] = []
                 documentation[subject][year].append(file)
         
-
-print(documentation)
+with open(os.path.join(output_directory, "documentation.json"), 'w') as file: 
+     file.write(json.dumps(documentation))

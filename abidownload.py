@@ -70,7 +70,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_directory")
     parser.add_argument("output_directory")
-    parser.add_argument("-nd", "--no-download", action='store_true', help="parsing pdfs without downloading files")
     args = parser.parse_args()
 
     input_directory = args.input_directory
@@ -88,20 +87,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-"""
-    # download from ownCloud
-    if args.no_download:
-        continue
-
-
-        try:
-            documentation[subject][year].append(file)
-        except KeyError: # subject or year does not exist in documentation
-            documentation[subject] = {} if subject not in documentation else documentation[subject]
-            documentation[subject][year] = [] if year not in documentation[subject] else documentation[subject][year]
-            documentation[subject][year].append(file)
-
-with open(os.path.join(output_directory, "documentation.json"), 'w') as file: 
-     file.write(json.dumps(documentation))
-"""

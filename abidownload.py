@@ -39,17 +39,32 @@ def download_all_files_from_share(share_id, share_password, subject, year, downl
     }
 
     client = Client(options)
-    try:
-        filenames = client.list()
-    except WebDavException as exception:
-        print(f"{subject} {year} failed ls! Share-ID: {share_id}")
-        return
+    sucessful, i = False, 0
+    while not sucessful:
+        try:
+            filenames = client.list()
+            sucessful = True
+        except WebDavException as exception:
+            i += 1
+            if i == 5:
+                print(f"{subject} {year} failed ls! Share-ID: {share_id}")
+                break
+            print(f"Retry... ({subject})")
+            pass
     for file in filenames[1:]:
         print(f"Downloading {subject} {year}: {file}")
-        try:
-            client.download_sync(remote_path=file, local_path=os.path.join(download_location, file))
-        except WebDavException as exception:
-            print(f"{file}: failed!")
+        sucessful, i = False, 0
+        while not sucessful:
+            try:
+                client.download_sync(remote_path=file, local_path=os.path.join(download_location, file))
+                sucessful = True
+            except WebDavException as exception:
+                i += 1
+                if i == 5:
+                    print(f"{file}: failed!")
+                    break
+                print(f"Retry... ({file})")
+                pass
 
 def main():
     parser = argparse.ArgumentParser()

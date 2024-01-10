@@ -47,8 +47,12 @@ def download_all_files_from_share(share_id, share_password, subject, year, downl
         except WebDavException as exception:
             i += 1
             if i == 5:
-                print(f"{subject} {year} failed ls! Share-ID: {share_id}")
-                break
+                print(f"""Failed fetching shared files!
+                Share-ID: {share_id}
+                Share Password: {share_password}
+                Subject: {subject}
+                Year: {year}""")
+                return
             print(f"Retry... ({subject})")
             pass
     for file in filenames[1:]:

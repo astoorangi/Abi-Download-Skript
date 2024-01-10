@@ -6,4 +6,4 @@ Bei Anfrage der Abiturklausuren über [Frag Den Staat](https://fragdenstaat.de) 
 
 Wichtig: Das Schulministerium behauptet, die Abiturklausuren würden urheberrechtlichen geschütztes Material beinhalten. Daher enthält dieses Projekt **nicht** die Abiturklausuren selbst. Es ist notwendig, sich die Zugangsdaten zu diesen eigenständig über FragDenStaat anzufragen. Im Anschluss hilft dieses Skript dabei, die Klausuren von den Servern herunterzuladen und strukturiert abzulegen.
 
-Das Skript ist derzeit in der Entwicklungsphase und noch nicht funktionstüchtig.
+Das Skript ist derzeit funktionstüchtig. Bisher wurde eine Datei entdeckt (Chinesisch 2021), welche nicht dem Aufbau der anderen Dateien entspricht und daher nicht automatisiert geparst werden kann.

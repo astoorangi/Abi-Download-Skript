@@ -18,11 +18,8 @@ def find_all_credential_pdfs(path):
     return credential_pdfs
 
 
-def sanitize_subject(name, has_trailing_space):
-    sanitized = re.search(r"([^\/]+)", name).group(1)
-    if has_trailing_space:
-        sanitized = sanitized[:-1]
-    return sanitized
+def sanitize_subject(name):
+    return re.search(r"([^\/]+)", name).group(1).rstrip()
 
 
 def parse_credential_pdf(path_to_file):
@@ -30,7 +27,7 @@ def parse_credential_pdf(path_to_file):
     if pdfcontent[0] == "Alle Fächer 2007-2021 (soweit geprüft) ":
         return parse_all_in_one_pdf(pdfcontent)
     details = {}
-    details["subject"] = sanitize_subject(pdfcontent[0], has_trailing_space=True)
+    details["subject"] = sanitize_subject(pdfcontent[0])
     details["year"] = pdfcontent[2][:4]
     details["share_id"] = pdfcontent[2].split("/")[-1][:-1]
     details["share_password"] = pdfcontent[4][:-1]
@@ -46,7 +43,7 @@ def collect_all_in_one_pdf_credentials(content):
             working_list = [line] + working_list
         else:
             if subject is None:
-                subject = sanitize_subject(line, has_trailing_space=False)
+                subject = sanitize_subject(line)
                 continue
             share_password = line
             for entry in working_list:

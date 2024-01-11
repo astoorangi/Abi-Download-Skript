@@ -1,11 +1,11 @@
 #!/bin/env python
 
 import argparse
+import os
+import re
 from pdfminer.high_level import extract_text
 from webdav3.client import Client
 from webdav3.exceptions import WebDavException
-import os
-import re
 
 
 def find_all_credential_pdfs(path):
@@ -38,7 +38,6 @@ def collect_all_in_one_pdf_credentials(content):
     subject = None
     working_list = []
     for line in content:
-        print(line)
         if re.match(r"\d{4} ", line):
             working_list = [line] + working_list
         else:
@@ -48,12 +47,12 @@ def collect_all_in_one_pdf_credentials(content):
             share_password = line
             for entry in working_list:
                 year = entry[:4]
-                share_id = entry[len('XXXX  https://membox.nrw.de/index.php/s/'):]
+                share_id = entry[len("XXXX  https://membox.nrw.de/index.php/s/") :]
                 yield {
-                    'subject': subject,
-                    'year': year,
-                    'share_id': share_id,
-                    'share_password': share_password,
+                    "subject": subject,
+                    "year": year,
+                    "share_id": share_id,
+                    "share_password": share_password,
                 }
             working_list = []
             subject = None

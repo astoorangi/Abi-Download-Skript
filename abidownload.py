@@ -112,8 +112,7 @@ def main():
 
     credential_pdfs = find_all_credential_pdfs(input_directory)
     for pdf in credential_pdfs:
-        credential = parse_credential_pdf(os.path.join(input_directory, pdf))
-        credentials.append(credential)
+        credentials += parse_credential_pdf(os.path.join(input_directory, pdf))
 
     for credential in credentials:
         download_all_files_from_share(

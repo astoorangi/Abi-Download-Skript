@@ -18,16 +18,45 @@ def find_all_credential_pdfs(path):
     return credential_pdfs
 
 
+def sanitize_subject(name):
+    return re.search(r"([^\/]+)", name).group(1).rstrip()
+
+
 def parse_credential_pdf(path_to_file):
     pdfcontent = extract_text(path_to_file).splitlines()
     if pdfcontent[0] == "Alle Fächer 2007-2021 (soweit geprüft) ":
         return parse_all_in_one_pdf(pdfcontent)
     details = {}
-    details["subject"] = re.search(r"([^\/]+)", pdfcontent[0]).group(1)[:-1]
+    details["subject"] = sanitize_subject(pdfcontent[0])
     details["year"] = pdfcontent[2][:4]
     details["share_id"] = pdfcontent[2].split("/")[-1][:-1]
     details["share_password"] = pdfcontent[4][:-1]
     return [details]
+
+
+def collect_all_in_one_pdf_credentials(content):
+    subject = None
+    working_list = []
+    for line in content:
+        print(line)
+        if re.match(r"\d{4} ", line):
+            working_list = [line] + working_list
+        else:
+            if subject is None:
+                subject = sanitize_subject(line)
+                continue
+            share_password = line
+            for entry in working_list:
+                year = entry[:4]
+                share_id = entry[len('XXXX  https://membox.nrw.de/index.php/s/'):]
+                yield {
+                    'subject': subject,
+                    'year': year,
+                    'share_id': share_id,
+                    'share_password': share_password,
+                }
+            working_list = []
+            subject = None
 
 
 def parse_all_in_one_pdf(pdfcontent):
@@ -35,10 +64,7 @@ def parse_all_in_one_pdf(pdfcontent):
         line[:-1] for line in pdfcontent
     ]  # Remove last character (" ") in each line
     pdfcontent = list(filter(None, pdfcontent))[2:]  # Remove all empty strings in list
-    credentials = []
-    subject, year, share_id, share_password = "", "", "", ""
-    # TODO: Parse
-    return credentials
+    return [credential for credential in collect_all_in_one_pdf_credentials(pdfcontent)]
 
 
 def download_all_files_from_share(
@@ -112,8 +138,7 @@ def main():
 
     credential_pdfs = find_all_credential_pdfs(input_directory)
     for pdf in credential_pdfs:
-        credential = parse_credential_pdf(os.path.join(input_directory, pdf))
-        credentials.append(credential)
+        credentials += parse_credential_pdf(os.path.join(input_directory, pdf))
 
     for credential in credentials:
         download_all_files_from_share(

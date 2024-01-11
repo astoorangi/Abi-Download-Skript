@@ -10,18 +10,35 @@ import re
 
 def find_all_credential_pdfs(path):
     credential_pdfs = [
-        f for f in os.listdir(path) if re.match(r"\d{4}-\d{2}-\d{2}_\d+-(.+)+\.pdf", f)
+        f
+        for f in os.listdir(path)
+        if re.match(r"\d{4}-\d{2}-\d{2}_\d+-(.+)+\.pdf", f)
+        or f == "allefcher2007-2021.pdf"
     ]
     return credential_pdfs
 
 
 def parse_credential_pdf(path_to_file):
     pdfcontent = extract_text(path_to_file).splitlines()
-    subject = re.search(r"([^\/]+)", pdfcontent[0]).group(1)[:-1]
-    year = pdfcontent[2][:4]
-    share_id = pdfcontent[2].split("/")[-1][:-1]
-    share_password = pdfcontent[4][:-1]
-    return subject, year, share_id, share_password
+    if pdfcontent[0] == "Alle Fächer 2007-2021 (soweit geprüft) ":
+        return parse_all_in_one_pdf(pdfcontent)
+    details = {}
+    details["subject"] = re.search(r"([^\/]+)", pdfcontent[0]).group(1)[:-1]
+    details["year"] = pdfcontent[2][:4]
+    details["share_id"] = pdfcontent[2].split("/")[-1][:-1]
+    details["share_password"] = pdfcontent[4][:-1]
+    return [details]
+
+
+def parse_all_in_one_pdf(pdfcontent):
+    pdfcontent = [
+        line[:-1] for line in pdfcontent
+    ]  # Remove last character (" ") in each line
+    pdfcontent = list(filter(None, pdfcontent))[2:]  # Remove all empty strings in list
+    credentials = []
+    subject, year, share_id, share_password = "", "", "", ""
+    # TODO: Parse
+    return credentials
 
 
 def download_all_files_from_share(
@@ -95,17 +112,8 @@ def main():
 
     credential_pdfs = find_all_credential_pdfs(input_directory)
     for pdf in credential_pdfs:
-        subject, year, share_id, share_password = parse_credential_pdf(
-            os.path.join(input_directory, pdf)
-        )
-        credentials.append(
-            {
-                "subject": subject,
-                "year": year,
-                "share_id": share_id,
-                "share_password": share_password,
-            }
-        )
+        credential = parse_credential_pdf(os.path.join(input_directory, pdf))
+        credentials.append(credential)
 
     for credential in credentials:
         download_all_files_from_share(

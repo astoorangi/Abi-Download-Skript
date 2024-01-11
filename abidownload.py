@@ -30,15 +30,37 @@ def parse_credential_pdf(path_to_file):
     return [details]
 
 
+def collect_all_in_one_pdf_credentials(content):
+    subject = None
+    working_list = []
+    for line in content:
+        print(line)
+        if re.match(r"\d{4} ", line):
+            working_list = [line] + working_list
+        else:
+            if subject is None:
+                subject = line
+                continue
+            share_password = line
+            for entry in working_list:
+                year = entry[:4]
+                share_id = entry[len('XXXX  https://membox.nrw.de/index.php/s/'):]
+                yield {
+                    'subject': subject,
+                    'year': year,
+                    'share_id': share_id,
+                    'share_password': share_password,
+                }
+            working_list = []
+            subject = None
+
+
 def parse_all_in_one_pdf(pdfcontent):
     pdfcontent = [
         line[:-1] for line in pdfcontent
     ]  # Remove last character (" ") in each line
     pdfcontent = list(filter(None, pdfcontent))[2:]  # Remove all empty strings in list
-    credentials = []
-    subject, year, share_id, share_password = "", "", "", ""
-    # TODO: Parse
-    return credentials
+    return [credential for credential in collect_all_in_one_pdf_credentials(pdfcontent)]
 
 
 def download_all_files_from_share(
